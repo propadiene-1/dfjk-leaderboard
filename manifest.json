@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "dfjk Leaderboard",
+  "version": "1.0",
+  "description": "Shared leaderboards for DFJK.",
+  "content_scripts": [
+    {
+      "matches": ["https://www.rebitwise.com/games/dfjk*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
