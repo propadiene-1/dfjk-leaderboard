@@ -112,7 +112,7 @@ console.log('[DFJK-LB] content script running');
     if (!rows || !rows.length) {
       const empty = document.createElement('div');
       empty.textContent = 'No scores yet.';
-      empty.style.cssText = 'text-align:center;color:#999;padding:6px 0;';
+      empty.style.cssText = 'text-align:left;color:#999;padding:6px 0;';
       p.appendChild(empty);
       return;
     }
@@ -285,7 +285,7 @@ console.log('[DFJK-LB] content script running');
     function renderG(rows) {
       const p = ensureG();
       p.innerHTML = '<div style="font-weight:700;margin-bottom:8px">Global Standings</div>';
-      if (!rows.length) { p.innerHTML += '<div style="color:#999">No scores yet</div>'; return; }
+      if (!rows.length) { p.innerHTML += '<div style="color:#999">No scores yet.</div>'; return; }
       rows.forEach((row, i) => {
         const acc = Number.isFinite(row.accuracy) ? row.accuracy.toFixed(0) + '%' : '—';
         const cps = Number.isFinite(row.cps) ? row.cps.toFixed(1) : '—';
