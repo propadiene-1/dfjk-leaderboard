@@ -4,7 +4,7 @@ Adds chart leaderboards and global player standings to [**DFJK**](https://www.re
 
 Scores are hosted on Supabase.
 
-### How to Use
+### How to Use (Chome Extension)
 
 1. Download the file (Code > Download ZIP)
 
@@ -13,6 +13,14 @@ Scores are hosted on Supabase.
 3. Go to chrome://extensions > Turn on Developer mode > Load Unpacked > dfjk-leaderboard-main
 
 4. Play the game :D
+
+### How to Use (Bookmark)
+
+1. Open Bookmarks bar (Ctrl+Shift+B / Cmd+Shift+B) > Right click > Add page
+
+2. Create bookmark with URL: `javascript:(function(){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/propadiene-1/dfjk-leaderboard@main/content.js';document.body.appendChild(s);})();`
+
+3. Open the game and click the bookmark :D
 
 ### Configuration
 

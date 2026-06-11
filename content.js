@@ -267,10 +267,11 @@ console.log('[DFJK-LB] content script running');
       gPanel = document.createElement('div');
       gPanel.style.cssText =
         'position:fixed;top:100px;' + 
-        (GLOBAL_PANEL_SIDE === 'right' ? 'right:16px;' : 'left:16px;') + 
+        (GLOBAL_PANEL_SIDE === 'right' ? 'right:16px;' : 'left:28px;') + 
         'width:230px;max-height:80vh;overflow:auto;' +
         'z-index:99999;pointer-events:none;font-family:inherit;font-size:20px;color:#333;' +
-        'text-align:left;line-height:1.3;padding-left:24px';
+        //'background:#fff;border-radius:14px;padding:8px 8px;' + // border:2px solid #1a1a1a;
+        'text-align:left;line-height:1.3;padding-left:12px';
       document.body.appendChild(gPanel);
       return gPanel;
     }

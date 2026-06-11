@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "dfjk Leaderboard",
+  "name": "DFJK Leaderboard",
   "version": "1.0",
   "description": "Shared leaderboards for DFJK.",
   "content_scripts": [
