@@ -1,11 +1,11 @@
-## DFJK Leaderboard
+# DFJK Leaderboard
 
 Adds chart leaderboards and global player standings to [**DFJK**](https://www.rebitwise.com/games/dfjk/), a popular typing / rhythm game.
 
 Scores are hosted on Supabase.
 
-### Option 1: Install as Chrome Extension
----
+## Option 1: Install as Chrome Extension
+
 1. Download the file (Code > Download ZIP)
 
 2. Unzip
@@ -14,8 +14,8 @@ Scores are hosted on Supabase.
 
 4. Play the game :D
 
-### Option 2: Use in Browser
----
+## Option 2: Use in Browser
+
 1. Open Bookmarks bar (Ctrl+Shift+B / Cmd+Shift+B) > Right click > Add page
 
 2. Create bookmark with URL: 
@@ -25,8 +25,8 @@ Scores are hosted on Supabase.
 
 3. Open the game and click the bookmark :D
 
-### Configuration
----
+## Configuration
+
 If you want to use your own database, change the `SUPABASE_URL` / `SUPABASE_KEY` variables at the top of `content.js`.
 
 Score table setup for Supabase (run in SQL Editor):
