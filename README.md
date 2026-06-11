@@ -10,7 +10,7 @@ Scores are hosted on Supabase.
 
 2. Unzip
 
-3. Go to chrome://extensions > Turn on Developer mode > Load Unpacked > dfjk-leaderboard-main
+3. Unpack Chrome extension (chrome://extensions > Turn on Developer mode > Load Unpacked > dfjk-leaderboard-main)
 
 4. Play the game :D
 
@@ -18,7 +18,9 @@ Scores are hosted on Supabase.
 
 1. Open Bookmarks bar (Ctrl+Shift+B / Cmd+Shift+B) > Right click > Add page
 
-2. Create bookmark with URL: `javascript:(function(){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/propadiene-1/dfjk-leaderboard@main/content.js';document.body.appendChild(s);})();`
+2. Create bookmark with URL: 
+
+    ```javascript:(function(){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/propadiene-1/dfjk-leaderboard@main/content.js';document.body.appendChild(s);})();```
 
 3. Open the game and click the bookmark :D
 
