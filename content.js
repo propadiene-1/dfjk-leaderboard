@@ -9,10 +9,10 @@ console.log('[DFJK-LB] content script running');
   // CONFIG
   const SUPABASE_URL      = 'https://ypteejjhqhlluwfzqcwq.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_FIFsXjeKSRN1Y3YXzAoxYg_n7TwPvsN';
-  const MAX_ENTRIES       = 5;                            // number of scores to show
+  const MAX_ENTRIES       = 3;                            // number of scores to show
   const GLOBAL_ENTRIES    = 5;                            // number of top users
-  const CHART_PANEL_SIDE   = 'left';
-  const GLOBAL_PANEL_SIDE = 'right';                             
+  const CHART_PANEL_SIDE   = 'right';
+  const GLOBAL_PANEL_SIDE = 'left';                             
 
   // BACKEND
   const REST = `${SUPABASE_URL}/rest/v1/scores`;
@@ -270,7 +270,7 @@ console.log('[DFJK-LB] content script running');
         (GLOBAL_PANEL_SIDE === 'right' ? 'right:16px;' : 'left:16px;') + 
         'width:230px;max-height:80vh;overflow:auto;' +
         'z-index:99999;pointer-events:none;font-family:inherit;font-size:18px;color:#333;' +
-        'text-align:left;line-height:1.3;';
+        'text-align:left;line-height:1.3;padding-left:24px';
       document.body.appendChild(gPanel);
       return gPanel;
     }
