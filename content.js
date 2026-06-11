@@ -94,7 +94,7 @@ console.log('[DFJK-LB] content script running');
       'position:fixed;top:100px;' +
       (CHART_PANEL_SIDE === 'right' ? 'right:16px;' : 'left:16px;') +
       'width:230px;max-height:80vh;overflow:auto;z-index:99999;pointer-events:none;' +
-      'font-family:inherit;font-size:18px;color:#333;text-align:left;line-height:1.3;padding-left:24px;';
+      'font-family:inherit;font-size:20px;color:#333;text-align:left;line-height:1.3;padding-left:24px;';
     document.body.appendChild(sidePanel);
     return sidePanel;
   }
@@ -134,7 +134,7 @@ console.log('[DFJK-LB] content script running');
         `<span>${fmt(row.time_ms)}</span>`;
  
       const sub = document.createElement('div');
-      sub.style.cssText = 'color:#999;font-size:16px;margin-left:26px;';
+      sub.style.cssText = 'color:#999;font-size:18px;margin-left:26px;';
       sub.textContent = `${acc} · ${cps} cps`;
  
       item.appendChild(main);
@@ -150,7 +150,7 @@ console.log('[DFJK-LB] content script running');
  
     const wrap = document.createElement('div');
     wrap.className = 'dfjk-lb-save';
-    wrap.style.cssText = 'margin-top:20px;text-align:center;font-family:inherit;';
+    wrap.style.cssText = 'margin-top:22px;text-align:center;font-family:inherit;';
  
     const row = document.createElement('div');
     row.style.cssText = 'display:flex;gap:8px;justify-content:center;';
@@ -160,7 +160,7 @@ console.log('[DFJK-LB] content script running');
     input.placeholder = 'Enter username';
     input.value = localStorage.getItem('dfjk_lb_username') || '';
     input.style.cssText =
-      'flex:0 1 180px;padding:6px 10px;border:1px solid #ccc;border-radius:8px;font:inherit;font-size:18px;';
+      'flex:0 1 180px;padding:6px 10px;border:1px solid #ccc;border-radius:8px;font:inherit;font-size:20px;';
     ['keydown', 'keyup', 'keypress'].forEach(evt =>
       input.addEventListener(evt, e => e.stopPropagation()));
  
@@ -168,10 +168,10 @@ console.log('[DFJK-LB] content script running');
     btn.textContent = 'Save score';
     btn.style.cssText =
       'padding:6px 14px;border:none;border-radius:8px;background:#fbbf24;' +
-      'font:inherit;font-weight:700;cursor:pointer;font-size:18px;';
+      'font:inherit;font-weight:700;cursor:pointer;font-size:20px;';
  
     const note = document.createElement('div');
-    note.style.cssText = 'margin-top:8px;font-weight:700;'; //color:#16a34a;
+    note.style.cssText = 'margin-top:8px;font-weight:700;font-size:20px'; //color:#16a34a;
  
     const send = async () => {
       const username = input.value.trim();
@@ -269,7 +269,7 @@ console.log('[DFJK-LB] content script running');
         'position:fixed;top:100px;' + 
         (GLOBAL_PANEL_SIDE === 'right' ? 'right:16px;' : 'left:16px;') + 
         'width:230px;max-height:80vh;overflow:auto;' +
-        'z-index:99999;pointer-events:none;font-family:inherit;font-size:18px;color:#333;' +
+        'z-index:99999;pointer-events:none;font-family:inherit;font-size:20px;color:#333;' +
         'text-align:left;line-height:1.3;padding-left:24px';
       document.body.appendChild(gPanel);
       return gPanel;
@@ -298,7 +298,7 @@ console.log('[DFJK-LB] content script running');
             `text-overflow:ellipsis;white-space:nowrap">${escapeHtml(row.username)}</span>` +
             `<span style="flex:none;margin-left:2px">${fmt(row.time_ms)}</span>` +
           '</div>' +
-          `<div style="color:#999;font-size:16px;margin-left:20px">${acc} · ${cps} cps · #${row.chart_id}</div>`;
+          `<div style="color:#999;font-size:18px;margin-left:20px">${acc} · ${cps} cps · #${row.chart_id}</div>`;
         p.appendChild(item);
       });
     }
