@@ -4,6 +4,13 @@ Adds chart leaderboards and global player standings to [**DFJK**](https://www.re
 
 Scores are hosted on Supabase.
 
+## Features
+
+- **Chart leaderboard** — top 5 times for the chart you're playing, refreshed every 20 seconds
+- **Global standings** — the fastest runs across all charts, best run per player
+- **Score saving** — username box on the results screen; press <kbd>s</kbd> to save
+- **Player lookup** — the bar chart icon (next to settings) shows recent scores, or type a username to see every score from that player (`*` works as a wildcard, e.g. `qia*`)
+
 ## Option 1: Install as Chrome Extension
 
 1. Download the file (Code > Download ZIP)
@@ -22,12 +29,12 @@ Scores are hosted on Supabase.
     ```
     javascript:(function(){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/propadiene-1/dfjk-leaderboard@main/content.js';document.body.appendChild(s);})();
     ```
-
+    
 3. Open the game and click the bookmark :D
 
 ## Configuration
 
-If you want to use your own database, change the `SUPABASE_URL` / `SUPABASE_KEY` variables at the top of `content.js`.
+If you want to use your own database, change the `SUPABASE_URL` / `SUPABASE_KEY` variables at the top of `content.js`. Board sizes, refresh rate, and panel sides are also constants in the `CONFIG` block there.
 
 Score table setup for Supabase (run in SQL Editor):
 
