@@ -6,10 +6,13 @@ Scores are hosted on Supabase.
 
 ## Features
 
-- **Chart leaderboard** — top 5 times for the chart you're playing, refreshed every 20 seconds
-- **Global standings** — the fastest runs across all charts, best run per player
-- **Score saving** — username box on the results screen; press <kbd>s</kbd> to save
-- **Player lookup** — the bar chart icon (next to settings) shows recent scores, or type a username to see every score from that player (`*` works as a wildcard, e.g. `qia*`)
+- **Chart leaderboard** - top 5 times for current chart
+
+- **Global standings** - top 5 players ranked by best score
+
+- **Score saving** - enter username + press <kbd>s</kbd> to save
+
+- **Player lookup panel** - look up any player's scores
 
 ## Option 1: Install as Chrome Extension
 
