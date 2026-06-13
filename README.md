@@ -12,7 +12,7 @@ Scores are hosted on Supabase.
 
 3. Unpack Chrome extension (chrome://extensions > Turn on Developer mode > Load Unpacked > dfjk-leaderboard-main)
 
-4. Play the game :D
+4. Play the game. Refresh to auto-update the extension :D
 
 ## Option 2: Browser Bookmark
 
