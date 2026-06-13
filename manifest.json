@@ -6,7 +6,7 @@
   "content_scripts": [
     {
       "matches": ["https://www.rebitwise.com/games/dfjk*"],
-      "js": ["loader.js"],
+      "js": ["content.js"],
       "run_at": "document_idle"
     }
   ]
