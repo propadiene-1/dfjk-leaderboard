@@ -15,42 +15,38 @@
   const SUPABASE_KEY = 'sb_publishable_FIFsXjeKSRN1Y3YXzAoxYg_n7TwPvsN';
   const MAX_ENTRIES       = 5;                            // number of scores to show
   const GLOBAL_ENTRIES    = 5;                            // number of top scores
-  const FETCH_LIMIT       = 50;                           // rows fetched for global dedupe
   const RECENT_ENTRIES    = 12;                           // number of recent scores
   const REFRESH_MS        = 20000;                        // board refresh interval
+  const LENGTH_OPTIONS    = [20, 50, 75, 100];            // key counts in the dropdowns
+  const DEFAULT_LENGTH    = 50;                           // standings length shown first
   const CHART_PANEL_SIDE   = 'right';
   const GLOBAL_PANEL_SIDE = 'left';
 
   // BACKEND
   const REST = `${SUPABASE_URL}/rest/v1/scores`;
+  const REST_BEST = `${SUPABASE_URL}/rest/v1/best_scores`;  // view: best row per player per length
   const HEADERS = {
     apikey: SUPABASE_KEY,
     'Content-Type': 'application/json',
   };
 
-  async function fetchTop(chartId) {
+  async function fetchTop(chartId, length) {
     try {
-      const url = `${REST}?chart_id=eq.${chartId}` +
+      const L = length || DEFAULT_LENGTH;
+      const url = `${REST}?chart_id=eq.${chartId}&length=eq.${L}` +
         `&select=username,time_ms,accuracy,cps&order=time_ms.asc&limit=${MAX_ENTRIES}`;
       const r = await fetch(url, { headers: HEADERS });
       return r.ok ? await r.json() : [];
     } catch { return []; }
   }
 
-  async function fetchGlobal() {
+  // best_scores already holds one row per player per length, so just take the fastest few
+  async function fetchGlobal(length) {
     try {
-      const url = `${REST}?select=username,time_ms,accuracy,cps,chart_id` +
-        `&order=time_ms.asc&limit=${FETCH_LIMIT}`;
+      const url = `${REST_BEST}?select=username,time_ms,accuracy,cps,chart_id` +
+        `&length=eq.${length}&order=time_ms.asc&limit=${GLOBAL_ENTRIES}`;
       const r = await fetch(url, { headers: HEADERS });
-      if (!r.ok) return [];
-      // best score per player
-      const seen = new Set();
-      return (await r.json()).filter(row => {
-        const k = row.username.toLowerCase();
-        if (seen.has(k)) return false;
-        seen.add(k);
-        return true;
-      }).slice(0, GLOBAL_ENTRIES);
+      return r.ok ? await r.json() : [];
     } catch { return []; }
   }
 
@@ -100,7 +96,10 @@
     const acc     = parseFloat((text.match(/Accuracy:\s*([\d.]+)\s*%/) || [])[1]);
     const cps     = parseFloat((text.match(/([\d.]+)\s*CPS/) || [])[1]);
     if (!chartId || !Number.isFinite(timeS)) return null;
-    return { chartId, time_ms: Math.round(timeS * 1000), accuracy: acc, cps };
+    // key count is shown as (N) in the chart label, e.g. "DFJK #123 (50)"
+    let length = +(text.match(/\((\d+)\)/) || [])[1];
+    if (!length && Number.isFinite(cps)) length = Math.round(cps * timeS); // cps*time == length
+    return { chartId, time_ms: Math.round(timeS * 1000), accuracy: acc, cps, length: length || null };
   }
 
   // read active chart number
@@ -124,6 +123,53 @@
       ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
+  // custom "50 keys ▾" dropdown used by both boards (a native <select> popup can't be themed)
+  function makeLengthDropdown(initial, onSelect, fmtLabel) {
+    const fmtL = fmtLabel || (L => L + ' keys');  // closed-label text; menu always shows "N keys"
+    const wrap = document.createElement('span');
+    wrap.style.cssText = 'position:relative;display:inline-block';
+    const text = document.createElement('span');
+    text.textContent = fmtL(initial);
+    const arrow = document.createElement('span');
+    arrow.textContent = 'arrow_drop_down';
+    arrow.style.cssText = 'font-family:var(--icon-font);font-size:24px;vertical-align:-5px;margin:0 -4px 0 -2px';
+    const label = document.createElement('span');
+    label.style.cssText = 'pointer-events:auto;cursor:pointer;white-space:nowrap';
+    label.append(text, arrow);
+    // options menu, themed like the game dialogs. position:fixed (placed on open) so it
+    // isn't clipped by the panel's overflow when the board is short / empty
+    const menu = document.createElement('div');
+    menu.style.cssText =
+      'position:fixed;display:none;z-index:1;' +
+      'pointer-events:auto;font-weight:400;background-color:var(--bg);color:var(--fg);' +
+      'border:2px solid var(--fg);border-radius:0.5rem;box-shadow:0 2px 6px rgba(0,0,0,0.25);' +
+      'padding:4px 0;overflow:hidden';
+    LENGTH_OPTIONS.forEach(L => {
+      const opt = document.createElement('div');
+      opt.textContent = L + ' keys';
+      opt.style.cssText = 'padding:4px 16px;cursor:pointer;white-space:nowrap';
+      opt.addEventListener('mouseenter', () => { opt.style.backgroundColor = 'var(--blue)'; });
+      opt.addEventListener('mouseleave', () => { opt.style.backgroundColor = 'transparent'; });
+      opt.addEventListener('click', () => {
+        text.textContent = fmtL(L);
+        menu.style.display = 'none';
+        onSelect(L);
+      });
+      menu.appendChild(opt);
+    });
+    label.addEventListener('click', e => {
+      e.stopPropagation();
+      if (menu.style.display !== 'none') { menu.style.display = 'none'; return; }
+      const r = label.getBoundingClientRect();
+      menu.style.left = r.left + 'px';
+      menu.style.top = (r.bottom + 4) + 'px';
+      menu.style.display = '';
+    });
+    document.addEventListener('click', () => { menu.style.display = 'none'; });
+    wrap.append(label, menu);
+    return { wrap, setValue: L => { text.textContent = fmtL(L); } };
+  }
+
   // new best banner (disabled for now)
   // let bestBanner = null;
   // function showNewBest() {
@@ -144,7 +190,8 @@
   // document.addEventListener('click', hideNewBest, true);
 
   // chart leaderboard panel
-  let sidePanel = null;
+  let sidePanel = null, sideTitleEl = null, sideRowsEl = null, sideDd = null;
+  let chartLength = DEFAULT_LENGTH;
   function ensureSidePanel() {
     if (sidePanel && document.body.contains(sidePanel)) return sidePanel;
     sidePanel = document.createElement('div');
@@ -152,8 +199,22 @@
     sidePanel.style.cssText =
       'position:fixed;top:100px;' +
       (CHART_PANEL_SIDE === 'right' ? 'right:16px;' : 'left:16px;') +
-      'width:230px;max-height:80vh;overflow:auto;pointer-events:none;' +
+      'width:300px;max-height:80vh;overflow:auto;pointer-events:none;' +
       'font-family:inherit;font-size:20px;color:#333;text-align:left;line-height:1.3;padding-left:24px;';
+
+    // header: "Leaderboard · #123 (50 keys ▾)" on one row
+    const header = document.createElement('div');
+    header.style.cssText = 'margin-bottom:10px;font-weight:700';
+    sideTitleEl = document.createElement('span');
+    const open = document.createElement('span'); open.textContent = ' (';
+    sideDd = makeLengthDropdown(chartLength, L => { chartLength = L; sidePanelLength = null; refreshSidePanel(); }, L => '' + L);
+    const close = document.createElement('span'); close.textContent = ')';
+    header.append(sideTitleEl, open, sideDd.wrap, close);
+    sidePanel.appendChild(header);
+
+    sideRowsEl = document.createElement('div');
+    sidePanel.appendChild(sideRowsEl);
+
     // insert first so game dialogs paint on top
     document.body.insertBefore(sidePanel, document.body.firstChild);
     return sidePanel;
@@ -181,29 +242,26 @@
     return item;
   }
 
-  function renderSidePanel(chartId, rows, highlightTimeMs) {
-    const p = ensureSidePanel();
-    p.style.display = '';
-    p.innerHTML = '';
-
-    const title = document.createElement('div');
-    title.textContent = `Leaderboard · #${chartId} `;
-    title.style.cssText = 'font-weight:700;margin-bottom:10px;text-align:left;';
-    p.appendChild(title);
+  function renderSidePanel(chartId, rows, highlightTimeMs, length) {
+    ensureSidePanel();
+    sidePanel.style.display = '';
+    sideTitleEl.textContent = `Leaderboard · #${chartId}`;
+    if (length) sideDd.setValue(length);
+    sideRowsEl.innerHTML = '';
 
     // const pb = getPB(chartId);
     // if (pb != null) {
     //   const pbLine = document.createElement('div');
     //   pbLine.textContent = `your best · ${fmt(pb)}`;
-    //   pbLine.style.cssText = 'color:#999;font-size:18px;margin:-6px 0 10px;';
-    //   p.appendChild(pbLine);
+    //   pbLine.style.cssText = 'color:#999;font-size:18px;margin:0 0 8px;';
+    //   sideRowsEl.appendChild(pbLine);
     // }
 
     if (!rows || !rows.length) {
       const empty = document.createElement('div');
       empty.textContent = 'No scores yet.';
       empty.style.cssText = 'text-align:left;color:#999;padding:6px 0;';
-      p.appendChild(empty);
+      sideRowsEl.appendChild(empty);
       return;
     }
 
@@ -214,7 +272,7 @@
     };
 
     rows.slice(0, MAX_ENTRIES).forEach((row, i) => {
-      p.appendChild(makeEntry(i + 1, row, {
+      sideRowsEl.appendChild(makeEntry(i + 1, row, {
         hot: highlightTimeMs && row.time_ms === highlightTimeMs,
         subText: subFor(row),
         subMargin: '26px',
@@ -228,8 +286,8 @@
     //   const gap = document.createElement('div');
     //   gap.textContent = '···';
     //   gap.style.cssText = 'color:#999;padding:2px 0;margin-left:2px;';
-    //   p.appendChild(gap);
-    //   p.appendChild(makeEntry(meIdx + 1, rows[meIdx], {
+    //   sideRowsEl.appendChild(gap);
+    //   sideRowsEl.appendChild(makeEntry(meIdx + 1, rows[meIdx], {
     //     hot: highlightTimeMs && rows[meIdx].time_ms === highlightTimeMs,
     //     subText: subFor(rows[meIdx]),
     //     subMargin: '26px',
@@ -274,14 +332,15 @@
       localStorage.setItem('dfjk_lb_username', username);
       const ok = await submitScore({
         chart_id: run.chartId, username,
-        time_ms: run.time_ms, accuracy: run.accuracy, cps: run.cps,
+        time_ms: run.time_ms, accuracy: run.accuracy, cps: run.cps, length: run.length,
       });
       row.remove();
       if (ok) {
         sidePanelChartId = run.chartId;
-        sidePanelRows = await fetchTop(run.chartId);
+        sidePanelLength = run.length;
+        sidePanelRows = await fetchTop(run.chartId, run.length);
         sidePanelFetchedAt = Date.now();
-        renderSidePanel(run.chartId, sidePanelRows, run.time_ms);
+        renderSidePanel(run.chartId, sidePanelRows, run.time_ms, run.length);
         refreshGlobalBoard();
         note.textContent = 'Score Saved!';
       } else {
@@ -311,6 +370,7 @@
 
   // make chart leaderboard persist
   let sidePanelChartId = null;
+  let sidePanelLength = null;
   let sidePanelRows = [];
   let sidePanelFetchedAt = 0;
   async function refreshSidePanel() {
@@ -320,17 +380,19 @@
       sidePanelChartId = null;
       return;
     }
+    const len = chartLength;
     const detached = !sidePanel || !document.body.contains(sidePanel);
     const stale = Date.now() - sidePanelFetchedAt > REFRESH_MS;
-    if (id !== sidePanelChartId || stale) {
+    if (id !== sidePanelChartId || len !== sidePanelLength || stale) {
       sidePanelChartId = id;
+      sidePanelLength = len;
       sidePanelFetchedAt = Date.now();
-      const rows = await fetchTop(id);
-      if (sidePanelChartId !== id) return; // chart changed while fetching
+      const rows = await fetchTop(id, len);
+      if (sidePanelChartId !== id || sidePanelLength !== len) return; // changed while fetching
       sidePanelRows = rows;
-      renderSidePanel(id, sidePanelRows);
+      renderSidePanel(id, sidePanelRows, undefined, len);
     } else if (detached) {
-      renderSidePanel(id, sidePanelRows);
+      renderSidePanel(id, sidePanelRows, undefined, len);
     } else {
       sidePanel.style.display = '';
     }
@@ -353,11 +415,13 @@
     //   if (prevBest != null) showNewBest();
     // }
 
-    const board = await fetchTop(run.chartId);
+    chartLength = run.length || DEFAULT_LENGTH;  // show the board for the length just played
+    const board = await fetchTop(run.chartId, chartLength);
     sidePanelRows = board;
     sidePanelChartId = run.chartId;
+    sidePanelLength = chartLength;
     sidePanelFetchedAt = Date.now();
-    renderSidePanel(run.chartId, board);
+    renderSidePanel(run.chartId, board, undefined, chartLength);
     injectSaveUI(card, run);
   }
 
@@ -378,7 +442,8 @@
 
   // GLOBAL LEADERBOARD
   (function initGlobalBoard() {
-    let gPanel = null;
+    let gPanel = null, rowsEl = null;
+    let selectedLength = DEFAULT_LENGTH;
     function ensureG() {
       if (gPanel && document.body.contains(gPanel)) return gPanel;
       gPanel = document.createElement('div');
@@ -389,14 +454,29 @@
         'width:300px;max-height:80vh;overflow:auto;' +
         'pointer-events:none;font-family:inherit;font-size:20px;color:#333;' +
         'text-align:left;line-height:1.3;padding-left:12px';
+
+      // title + key-count dropdown, shown inline as "Global Standings (50 keys ▾)"
+      const header = document.createElement('div');
+      header.style.cssText = 'margin-bottom:8px;font-weight:700';
+      const title = document.createElement('span');
+      title.textContent = 'Global Standings (';
+      const dd = makeLengthDropdown(selectedLength, L => { selectedLength = L; refreshG(); });
+      const close = document.createElement('span');
+      close.textContent = ')';
+      header.append(title, dd.wrap, close);
+      gPanel.appendChild(header);
+
+      rowsEl = document.createElement('div');
+      gPanel.appendChild(rowsEl);
+
       // insert first so game dialogs paint on top
       document.body.insertBefore(gPanel, document.body.firstChild);
       return gPanel;
     }
     function renderG(rows) {
-      const p = ensureG();
-      p.innerHTML = '<div style="font-weight:700;margin-bottom:8px">Global Standings</div>';
-      if (!rows.length) { p.innerHTML += '<div style="color:#999">No scores yet.</div>'; return; }
+      ensureG();
+      rowsEl.innerHTML = '';
+      if (!rows.length) { rowsEl.innerHTML = '<div style="color:#999">No scores yet.</div>'; return; }
       rows.forEach((row, i) => {
         const acc = Number.isFinite(row.accuracy) ? row.accuracy.toFixed(0) + '%' : '—';
         const cps = Number.isFinite(row.cps) ? row.cps.toFixed(1) : '—';
@@ -410,10 +490,10 @@
             `<span style="flex:none;margin-left:2px">${fmt(row.time_ms)}</span>` +
           '</div>' +
           `<div style="color:#999;font-size:18px;margin-left:20px">${acc} · ${cps} cps · #${row.chart_id}</div>`;
-        p.appendChild(item);
+        rowsEl.appendChild(item);
       });
     }
-    async function refreshG() { renderG(await fetchGlobal()); }
+    async function refreshG() { renderG(await fetchGlobal(selectedLength)); }
     refreshGlobalBoard = refreshG;
     refreshG();
     setInterval(refreshG, REFRESH_MS);
@@ -547,6 +627,12 @@
       const name = input.value.trim();
       await (name ? showUser(name) : showRecent());
       if (open) panel.style.display = 'flex';
+    });
+    // clicking outside the panel (or its button) closes it
+    document.addEventListener('click', e => {
+      if (!open || panel.contains(e.target) || btn.contains(e.target)) return;
+      open = false;
+      panel.style.display = 'none';
     });
   })();
 })();
