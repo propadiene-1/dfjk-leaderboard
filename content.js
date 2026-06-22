@@ -635,4 +635,54 @@
       panel.style.display = 'none';
     });
   })();
+
+  // COLORS ONLY TOGGLE
+  // hides the letters on falling notes so only the colors show. starts off every
+  // load, so existing players keep the normal keys unless they flip it this session.
+  (function initColorsToggle() {
+    const style = document.createElement('style');
+    style.textContent = 'body.dfjk-colors-only #field .key{color:transparent!important}';
+    document.head.appendChild(style);
+
+    // small button beside the help icon, mirrors the lookup button on the right
+    const btn = document.createElement('button');
+    btn.id = 'dfjk-lb-colors-btn';
+    btn.className = 'status-bar-button';
+    btn.tabIndex = -1;
+    btn.style.left = 'var(--status-height)';
+    btn.style.right = 'auto';
+
+    // hover label, themed like the game dialogs
+    const tip = document.createElement('div');
+    tip.style.cssText =
+      'position:fixed;display:none;z-index:100000;pointer-events:none;white-space:nowrap;' +
+      'background-color:var(--bg);color:var(--fg);border:2px solid var(--fg);border-radius:0.5rem;' +
+      'padding:0.25rem 0.6rem;font-family:inherit;font-size:1rem;box-shadow:0 2px 6px rgba(0,0,0,0.25)';
+    document.body.appendChild(tip);
+
+    let on = false;
+    const labelFor = () => on ? 'show letters' : 'show colors only';
+    const sync = () => {
+      document.body.classList.toggle('dfjk-colors-only', on);
+      // crossed-out eye while letters show, open eye once they're hidden
+      btn.textContent = on ? 'visibility' : 'visibility_off';
+      // light up blue when active, like the game's checked checkboxes
+      btn.style.backgroundColor = on ? 'var(--blue)' : 'transparent';
+      if (tip.style.display !== 'none') tip.textContent = labelFor();
+    };
+    sync();
+
+    // place the label just above the button on hover
+    const showTip = () => {
+      tip.textContent = labelFor();
+      tip.style.display = '';
+      const r = btn.getBoundingClientRect();
+      tip.style.left = r.left + 'px';
+      tip.style.top = (r.top - tip.offsetHeight - 6) + 'px';
+    };
+    btn.addEventListener('mouseenter', () => { if (!on) btn.style.backgroundColor = '#0003'; showTip(); });
+    btn.addEventListener('mouseleave', () => { btn.style.backgroundColor = on ? 'var(--blue)' : 'transparent'; tip.style.display = 'none'; });
+    btn.addEventListener('click', () => { on = !on; sync(); showTip(); });
+    document.body.appendChild(btn);
+  })();
 })();

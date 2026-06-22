@@ -35,6 +35,8 @@ Scores are hosted on Supabase.
 
 - **Player lookup panel** - look up any player's scores
 
+- **[new update] Colors-only mode** - optionally hide the key letters
+
 ## Configuration
 
 If you want to use your own database, change the `SUPABASE_URL` / `SUPABASE_KEY` variables at the top of `content.js`. Board sizes, refresh rate, and panel sides are also constants in the `CONFIG` block there.
