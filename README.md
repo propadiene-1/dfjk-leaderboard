@@ -20,7 +20,7 @@ Scores are hosted on Supabase.
 
 2. Create bookmark with URL: 
     ```
-    javascript:(function(){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/propadiene-1/dfjk-leaderboard@main/content.js';document.body.appendChild(s);})();
+    javascript:(function(){if(window.__dfjkLBInjected)return;window.__dfjkLBInjected=1;var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/propadiene-1/dfjk-leaderboard@main/content.js';document.body.appendChild(s);})();
     ```
     
 3. Open the game and click the bookmark :D
